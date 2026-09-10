@@ -1,22 +1,20 @@
+import { GoogleGenAI } from "@google/genai";
+
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
 export async function embedText(text: string): Promise<number[]> {
-  const res = await fetch("https://api.voyageai.com/v1/embeddings", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.VOYAGE_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ input: [text], model: "voyage-3" }),
+  const res = await ai.models.embedContent({
+    model: "gemini-embedding-001",
+    contents: text,
+    config: { outputDimensionality: 768 },
   });
 
-  const data = await res.json();
+  const values = res.embeddings?.[0]?.values;
 
-  if (!res.ok) {
-    console.error(
-      `Voyage API error (status ${res.status}):`,
-      JSON.stringify(data),
-    );
-    throw new Error(`Voyage embedding request failed: ${res.status}`);
+  if (!values) {
+    console.error(`Gemini API error: Could not fetch embeddings.`);
+    throw new Error(`Gemini API error: Could not fetch embeddings.`);
   }
 
-  return data.data[0].embedding;
+  return values;
 }

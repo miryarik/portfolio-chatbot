@@ -17,7 +17,7 @@ model ContentChunk {
   id String @id @default(cuid())
   sourceLabel String
   text String
-  embedding Unsupported("vector(1024)")
+  embedding Unsupported("vector(768)")
   createdAt DateTime @default(now())
 }
 

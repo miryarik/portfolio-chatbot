@@ -1,11 +1,25 @@
 import { prisma } from "@/lib/prisma";
+import { ratelimit } from "@/lib/ratelimiter";
 import { retrieveContext } from "@/lib/retrieval";
 import { SYSTEM_PROMPT } from "@/lib/systemPrompt";
 import { GoogleGenAI } from "@google/genai";
+import { createHash } from "crypto";
+import { NextRequest, NextResponse } from "next/server";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const forwardedFor = req.headers.get("x-forwarded-for");
+  const ip =
+    (forwardedFor ? forwardedFor.split(",")[0].trim() : null) ||
+    req.headers.get("x-real-ip") ||
+    "127.0.0.1";
+
+  const { success, pending, limit, reset, remaining } =
+    await ratelimit.limit(ip);
+
+  if (!success) return NextResponse.json("Rate Limited", { status: 429 });
+
   const { message, conversationId } = await req.json();
   if (!message || typeof message != "string") {
     return new Response(JSON.stringify({ error: "Missing message" }), {
@@ -15,10 +29,11 @@ export async function POST(req: Request) {
 
   const context = await retrieveContext(message);
   const systemPrompt = SYSTEM_PROMPT.replace("{{context}}", context);
+  const visitorHash = createHash("sha256").update(ip).digest("hex");
 
   const conversation = conversationId
     ? await prisma.conversation.findUnique({ where: { id: conversationId } })
-    : await prisma.conversation.create({ data: { visitorHash: "temp-hash" } });
+    : await prisma.conversation.create({ data: { visitorHash } });
 
   if (!conversation) {
     return new Response(JSON.stringify({ error: "Invalid Conversation" }), {
