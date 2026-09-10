@@ -1,0 +1,7 @@
+# ColorWars
+
+ColorWars is an in-progress multiplayer game project that I am using to learn real-time application architecture rather than presenting it as a finished product. The core idea is a game where players connect over WebSockets, enter a matchmaking flow, and are paired into a game session. The server is responsible for maintaining the authoritative state of a match and communicating relevant state changes to connected clients.
+
+The technically interesting part is the boundary between matchmaking and the actual game session. A player should not simply open a socket and immediately become part of arbitrary shared state; the server needs to keep track of connected players, waiting players, matched pairs, and active rooms, then move players through those states as a match is created and eventually ends. WebSocket messages also need a defined shape so the client and server agree on events instead of relying on ad-hoc strings and UI assumptions.
+
+This project is still being built. I am intentionally describing it as WIP because the unfinished parts are part of what I am learning: core Java, concurrency, reliable connection handling, matchmaking edge cases, authoritative state, disconnect behavior, and clean message contracts. While people can run it and play a game, this project very far from over. It is more useful to me as an engineering exercise than as a claim that I have shipped a multiplayer system.

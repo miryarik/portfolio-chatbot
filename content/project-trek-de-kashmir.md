@@ -1,0 +1,7 @@
+# Trek De Kashmir Web Platform
+
+Trek De Kashmir was one of the more complete client-facing web projects I worked on at ByteNovators. The work was not just about making static travel pages: I built a quote form that collected prospective-customer information and connected the frontend to a lead API which I contributed to as well, worked on package and itinerary functionality, and added a conversion page used for Google Ads conversion tracking. I also worked on SEO-oriented page content and metadata because the site had to serve both users and acquisition channels. It ended up collected some good leads for them.
+
+A separate part of the work was a Next.js + Sanity blog. I used Sanity as the content backend and Next.js's incremental static regeneration so published content could be served efficiently without turning every page request into a database/CMS fetch. The project taught me to think about a website as a small product system: forms have to reach an API, content has to be editable by non-developers, analytics flows have to correspond to real user actions, and SEO decisions affect the architecture of the rendered pages.
+
+The project was valuable because it was close to real client work. Requirements were not always expressed as clean engineering specifications, so part of the job was translating business requests into concrete application behavior and deciding how much logic belonged in the frontend, API, CMS, or deployment configuration.
