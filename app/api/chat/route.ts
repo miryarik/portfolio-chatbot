@@ -45,6 +45,16 @@ export async function POST(req: NextRequest) {
     data: { conversationId: conversation.id, role: "user", content: message },
   });
 
+  const priorMessages = await prisma.message.findMany({
+    where: { conversationId: conversation.id },
+    orderBy: { createdAt: "asc" },
+  });
+
+  const contents = priorMessages.map((m) => ({
+    role: m.role === "user" ? "user" : "model",
+    parts: [{ text: m.content }],
+  }));
+
   const encoder = new TextEncoder();
   let fullResponse = "";
 
@@ -53,7 +63,7 @@ export async function POST(req: NextRequest) {
       try {
         const geminiStream = await ai.models.generateContentStream({
           model: "gemini-3.6-flash",
-          contents: message,
+          contents,
           config: { systemInstruction: systemPrompt },
         });
 

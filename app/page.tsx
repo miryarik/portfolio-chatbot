@@ -1,69 +1,158 @@
-import Image from "next/image";
+"use client";
+import { cn, sampleChat } from "@/lib/utils";
+import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import ChatInput from "./components/chat-input";
 
-export default function Home() {
+type Message = { role: "user" | "assistant"; content: string };
+
+export default function ChatPage() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const isInitialState = messages.length === 0;
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  async function sendMessage() {
+    const trimmed = input.trim();
+    if (!trimmed || isLoading) return;
+
+    setError(null);
+    setInput("");
+    setMessages((prev) => [...prev, { role: "user", content: trimmed }]);
+    setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+    setIsLoading(true);
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: trimmed, conversationId }),
+      });
+
+      if (res.status === 429) {
+        setError("You've hit the message limit for now — try again in a bit.");
+        setMessages((prev) => prev.slice(0, -1));
+        setIsLoading(false);
+        return;
+      }
+
+      if (!res.ok || !res.body) {
+        throw new Error("Request failed");
+      }
+
+      const newConversationId = res.headers.get("X-Conversation-Id");
+      if (newConversationId) setConversationId(newConversationId);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+
+        setMessages((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1] = {
+            role: "assistant",
+            content: updated[updated.length - 1].content + chunk,
+          };
+          return updated;
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Something went wrong — please try again.");
+      setMessages((prev) => prev.slice(0, -1));
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06]  px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <main className="mx-auto min-w-100 max-w-200 w-full h-screen p-4 flex flex-col items-center">
+      <AnimatePresence mode="wait">
+        {isInitialState ? (
+          <motion.div
+            key="welcome"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+            className="flex-1 flex flex-col items-center justify-center w-full gap-6"
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <p className="text-3xl font-semibold text-white">
+              Hey! I am Yarik&apos;s portfolio!
+            </p>
+
+            <motion.div
+              layoutId="chat-input"
+              className="w-full flex flex-col gap-2"
+            >
+              <ChatInput
+                input={input}
+                setInput={setInput}
+                sendMessage={sendMessage}
+                isLoading={isLoading}
+                error={error}
+              />
+            </motion.div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="chat-list"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex-1 w-full min-h-0 overflow-y-auto scrollbar-none pr-2 my-4"
           >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+            {messages.map((msg, i) => (
+              <div
+                key={i}
+                className={cn("flex my-4", {
+                  "justify-end": msg.role === "user",
+                  "justify-start": msg.role === "assistant",
+                })}
+              >
+                <div
+                  className={`max-w-[80%] rounded-2xl px-4 py-2 whitespace-pre-wrap ${
+                    msg.role === "user"
+                      ? "bg-blue-900 text-white"
+                      : "text-white"
+                  }`}
+                >
+                  {msg.content ||
+                    (isLoading && i === messages.length - 1 ? "..." : "")}
+                </div>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {!isInitialState && (
+        <motion.div
+          layoutId="chat-input"
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          className="w-full flex flex-col gap-2 mt-auto"
+        >
+          <ChatInput
+            input={input}
+            setInput={setInput}
+            sendMessage={sendMessage}
+            isLoading={isLoading}
+            error={error}
+          />
+        </motion.div>
+      )}
+    </main>
   );
 }
