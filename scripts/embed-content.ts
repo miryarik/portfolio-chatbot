@@ -3,6 +3,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../app/generated/prisma/client";
 import fs from "node:fs";
 import path from "node:path";
+import { embedText } from "@/lib/embeddings";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
@@ -32,26 +33,6 @@ function chunkFile(filename: string, text: string): string[] {
     .split(/\n\n+/)
     .map((p) => p.trim())
     .filter((p) => p.length > 40);
-}
-
-async function embedText(text: string): Promise<number[]> {
-  const res = await fetch("https://api.voyageai.com/v1/embeddings", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.VOYAGE_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ input: [text], model: "voyage-3" }),
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    console.error(
-      `Voyage API error (status ${res.status}):`,
-      JSON.stringify(data),
-    );
-    throw new Error(`Voyage embedding request failed: ${res.status}`);
-  }
-  return data.data[0].embedding;
 }
 
 async function main() {
