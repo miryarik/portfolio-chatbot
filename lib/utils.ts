@@ -36,12 +36,19 @@ export const sampleChat: Message[] = [
   },
   {
     role: "user",
-    content: "Can you tell me about a recent project he built?",
+    content: "Can you tell me about some recent projects he built?",
   },
   {
     role: "assistant",
-    content:
-      "One of his highlighted projects is a full-stack SaaS platform featuring real-time collaborative document editing, authentication with NextAuth, dynamic database querying via Prisma, and automated payment processing integrated with Stripe.",
+    content: `Here are a few key projects I've worked on, ranging from full-scale production applications to personal engineering experiments:
+
+* **TravelByte CRM:** A complex product I heavily contributed to during my time at ByteNovators. It targeted a very unorganized industry domain with vague requirements, so I had to use a lot of my own judgment. I owned and delivered over a dozen features end-to-end—handling everything from the Next.js/React UIs down to the backend APIs, handlers, database models, and data flow design.
+* **Distributed .NET Project (Freelance):** A recent project where I've been working with .NET, ASP.NET Core, gRPC, PostgreSQL, and Entity Framework Core to explore distributed-system concepts, alongside Next.js for the public-facing side.
+* **ColorWars:** An in-progress side project written in Java. It's a basic two-player game over WebSockets, built specifically to teach myself real-time architecture, matchmaking, connection state handling, and authoritative server logic. 
+* **3D Renderer:** A small low-level experiment focused on understanding how geometry, 3D transformations, and rendering operate under the hood without relying on high-level engines.
+* **Watcha Watching:** A smaller, utility-focused application for tracking and exploring media. I built it as practice for integrating external APIs and shipping a complete, clean, smaller-scale app.
+
+Let me know if you'd like to dive deeper into the tech stack or architecture behind any of these!`,
   },
   {
     role: "user",

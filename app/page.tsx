@@ -3,11 +3,12 @@ import { cn, sampleChat } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import ChatInput from "./components/chat-input";
+import ChatMessage from "./components/chat-message";
 
 type Message = { role: "user" | "assistant"; content: string };
 
 export default function ChatPage() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(sampleChat);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -89,7 +90,7 @@ export default function ChatPage() {
             transition={{ duration: 0.3 }}
             className="flex-1 flex flex-col items-center justify-center w-full gap-6"
           >
-            <p className="text-3xl font-semibold text-white">
+            <p className="text-3xl font-semibold sans text-white">
               Hey! I am Yarik&apos;s portfolio!
             </p>
 
@@ -122,14 +123,20 @@ export default function ChatPage() {
                 })}
               >
                 <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-2 whitespace-pre-wrap ${
-                    msg.role === "user"
-                      ? "bg-blue-900 text-white"
-                      : "text-white"
-                  }`}
+                  className={cn(
+                    "max-w-[80%] rounded-2xl px-4 py-2 whitespace-pre-wrap",
+                    {
+                      "bg-chat-bubble-blue rounded-br-sm font-sans":
+                        msg.role === "user",
+                      "text-background": msg.role !== "user",
+                    },
+                  )}
                 >
-                  {msg.content ||
-                    (isLoading && i === messages.length - 1 ? "..." : "")}
+                  {msg.content ? (
+                    <ChatMessage content={msg.content} />
+                  ) : (
+                    isLoading && i === messages.length - 1 && "..."
+                  )}
                 </div>
               </div>
             ))}
