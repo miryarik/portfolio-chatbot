@@ -4,13 +4,18 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import ChatInput from "./components/chat-input";
 import ChatMessage from "./components/chat-message";
+import QuantumLoader from "./components/quantum-spinner";
 
 type Message = { role: "user" | "assistant"; content: string };
 
 export default function ChatPage() {
-  const [messages, setMessages] = useState<Message[]>(sampleChat);
+  const [messages, setMessages] = useState<Message[]>([
+    ...sampleChat,
+    { role: "user", content: "Test prompt to view loader" },
+    { role: "assistant", content: "" },
+  ]);
   const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -135,7 +140,10 @@ export default function ChatPage() {
                   {msg.content ? (
                     <ChatMessage content={msg.content} />
                   ) : (
-                    isLoading && i === messages.length - 1 && "..."
+                    isLoading &&
+                    i === messages.length - 1 && (
+                      <QuantumLoader size={25} className="bg-background" />
+                    )
                   )}
                 </div>
               </div>
