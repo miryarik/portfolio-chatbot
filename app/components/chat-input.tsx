@@ -32,7 +32,7 @@ export default function ChatInput({
               sendMessage();
             }
           }}
-          placeholder="Ask me a question"
+          placeholder="Ask Yarik a question"
           rows={1}
           disabled={isLoading}
         />
@@ -41,7 +41,7 @@ export default function ChatInput({
           disabled={isLoading || !input.trim()}
           className="bg-submit-button-bg p-2 rounded-full cursor-pointer"
         >
-          <ArrowUp className="text-background" />
+          <ArrowUp className="text-white" />
         </button>
       </div>
     </>

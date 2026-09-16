@@ -1,5 +1,5 @@
 "use client";
-import { cn, sampleChat } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import ChatInput from "./components/chat-input";
@@ -9,13 +9,9 @@ import QuantumLoader from "./components/quantum-spinner";
 type Message = { role: "user" | "assistant"; content: string };
 
 export default function ChatPage() {
-  const [messages, setMessages] = useState<Message[]>([
-    ...sampleChat,
-    { role: "user", content: "Test prompt to view loader" },
-    { role: "assistant", content: "" },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -95,7 +91,7 @@ export default function ChatPage() {
             transition={{ duration: 0.3 }}
             className="flex-1 flex flex-col items-center justify-center w-full gap-6"
           >
-            <p className="text-3xl font-semibold sans text-white">
+            <p className="text-3xl font-semibold sans text-foreground">
               Hey! I am Yarik&apos;s portfolio!
             </p>
 

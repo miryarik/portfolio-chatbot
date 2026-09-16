@@ -86,4 +86,6 @@ Let me know if you'd like to dive deeper into the tech stack or architecture beh
     content:
       "You can reach out directly via the **Contact** form at the bottom of this page, download his PDF resume using the navigation button, or connect with him on GitHub and LinkedIn!",
   },
+  { role: "user", content: "Test prompt to view loader" },
+  { role: "assistant", content: "" },
 ];
