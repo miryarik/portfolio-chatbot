@@ -1,9 +1,9 @@
 "use client";
-import { cn } from "@/lib/utils";
 import { CodeSquare, Mail, MessageCircle, User2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface Path {
   path: string;
@@ -31,27 +31,41 @@ export default function NavMenu() {
 }
 
 function NavItem({ path, active = false }: { path: Path; active: boolean }) {
+  const [hovered, setHovered] = useState(false);
+
   return (
     <div
-      className={cn("rounded-full w-full p-1.5", {
-        "bg-blue-500": active,
-      })}
+      className="relative rounded-full w-full p-1.5"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
+      {active && (
+        <motion.div
+          layoutId="active-nav-bg"
+          className="absolute inset-0 bg-blue-500 rounded-full"
+          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+        />
+      )}
+
       <Link
         href={path.path}
-        className="relative mx-auto w-full flex gap-2 group"
+        className="relative z-10 mx-auto w-full flex gap-2 items-center"
       >
-        <Tooltip label={path.label} />
-        {path.icon}{" "}
+        <AnimatePresence>
+          {hovered && (
+            <motion.div
+              initial={{ opacity: 0, x: -6 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -6 }}
+              transition={{ duration: 0.15 }}
+              className="absolute left-12 bg-nav-bg-color px-2 rounded-lg whitespace-nowrap"
+            >
+              {path.label}
+            </motion.div>
+          )}
+        </AnimatePresence>
+        {path.icon}
       </Link>
-    </div>
-  );
-}
-
-function Tooltip({ label }: { label: string }) {
-  return (
-    <div className="absolute hidden left-12 bg-nav-bg-color px-2 rounded-lg group-hover:block">
-      {label}
     </div>
   );
 }
