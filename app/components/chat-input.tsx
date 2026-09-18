@@ -32,7 +32,7 @@ export default function ChatInput({
               sendMessage();
             }
           }}
-          placeholder="Ask Yarik a question"
+          placeholder="Ask me a question"
           rows={1}
           disabled={isLoading}
         />

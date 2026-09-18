@@ -22,13 +22,11 @@ export default function NavMenu() {
   const pathname = usePathname();
 
   return (
-    <div className="absolute h-screen flex flex-col justify-center ml-4">
-      <div className="relative flex flex-col justify-center items-center gap-2 bg-neutral-800 p-1.5 rounded-[100px] group text-sm hover:rounded-[22px]">
-        {PATHS.map((p) => (
-          <NavItem key={p.label} path={p} active={pathname === p.path} />
-        ))}
-      </div>
-    </div>
+    <nav className="absolute flex flex-col gap-2 ml-4 mt-4 p-2 bg-nav-bg-color rounded-full">
+      {PATHS.map((p) => (
+        <NavItem key={p.label} path={p} active={pathname === p.path} />
+      ))}
+    </nav>
   );
 }
 
@@ -39,10 +37,21 @@ function NavItem({ path, active = false }: { path: Path; active: boolean }) {
         "bg-blue-500": active,
       })}
     >
-      <Link href={path.path} className="mx-auto w-full flex gap-2">
+      <Link
+        href={path.path}
+        className="relative mx-auto w-full flex gap-2 group"
+      >
+        <Tooltip label={path.label} />
         {path.icon}{" "}
-        <span className="hidden group-hover:block">{path.label}</span>
       </Link>
+    </div>
+  );
+}
+
+function Tooltip({ label }: { label: string }) {
+  return (
+    <div className="absolute hidden left-12 bg-nav-bg-color px-2 rounded-lg group-hover:block">
+      {label}
     </div>
   );
 }

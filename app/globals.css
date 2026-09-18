@@ -7,6 +7,7 @@
   --input-shadow: 0px 7px 29px 0px #9aa0a6;
   --chat-input-bg: #ffffff;
   --submit-button-bg: #4285f4;
+  --nav-bg-color: #9aa0a6;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -17,6 +18,7 @@
     --input-shadow: none;
     --chat-input-bg: #252525;
     --submit-button-bg: #4285f4;
+    --nav-bg-color: #292929;
   }
 }
 
@@ -27,6 +29,7 @@
   --text-foreground: #f1f3f4;
   --chat-input-bg: #252525;
   --submit-button-bg: #4285f4;
+  --nav-bg-color: #292929;
 }
 
 @theme {
@@ -36,6 +39,7 @@
   --shadow-input-shadow: var(--input-shadow);
   --color-chat-input-bg: var(--chat-input-bg);
   --color-submit-button-bg: var(--submit-button-bg);
+  --color-nav-bg-color: var(--nav-bg-color);
   --font-sans: "system-ui", var(--font-inter-sans);
 }
 

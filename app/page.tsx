@@ -92,7 +92,7 @@ export default function ChatPage() {
             className="flex-1 flex flex-col items-center justify-center w-full gap-6"
           >
             <p className="text-3xl font-semibold sans text-foreground">
-              Hey! I am Yarik&apos;s portfolio!
+              Hey! I am Yarik&apos;s Chatbot!
             </p>
 
             <motion.div
