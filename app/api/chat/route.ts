@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { ratelimit } from "@/lib/ratelimiter";
 import { retrieveContext } from "@/lib/retrieval";
 import { SYSTEM_PROMPT } from "@/lib/systemPrompt";
-import { GoogleGenAI } from "@google/genai";
+import { GenerateContentResponse, GoogleGenAI } from "@google/genai";
 import { createHash } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -15,13 +15,12 @@ export async function POST(req: NextRequest) {
     req.headers.get("x-real-ip") ||
     "127.0.0.1";
 
-  const { success, pending, limit, reset, remaining } =
-    await ratelimit.limit(ip);
+  const { success } = await ratelimit.limit(ip);
 
   if (!success) return NextResponse.json("Rate Limited", { status: 429 });
 
   const { message, conversationId } = await req.json();
-  if (!message || typeof message != "string") {
+  if ((!message || typeof message != "string") && !conversationId) {
     return new Response(JSON.stringify({ error: "Missing message" }), {
       status: 400,
     });
@@ -41,9 +40,11 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  await prisma.message.create({
-    data: { conversationId: conversation.id, role: "user", content: message },
-  });
+  if (message) {
+    await prisma.message.create({
+      data: { conversationId: conversation.id, role: "user", content: message },
+    });
+  }
 
   const priorMessages = await prisma.message.findMany({
     where: { conversationId: conversation.id },
@@ -61,11 +62,7 @@ export async function POST(req: NextRequest) {
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        const geminiStream = await ai.models.generateContentStream({
-          model: "gemini-3.6-flash",
-          contents,
-          config: { systemInstruction: systemPrompt },
-        });
+        const geminiStream = await startGeminiStream(contents, systemPrompt);
 
         for await (const chunk of geminiStream) {
           const text = chunk.text ?? "";
@@ -94,4 +91,44 @@ export async function POST(req: NextRequest) {
       "X-Conversation-Id": conversation.id,
     },
   });
+}
+
+async function startGeminiStream(
+  contents: {
+    role: string;
+    parts: { text: string }[];
+  }[],
+  systemPrompt: string,
+  retries = 2,
+): Promise<AsyncGenerator<GenerateContentResponse>> {
+  try {
+    return await ai.models.generateContentStream({
+      model: "gemini-3.6-flash",
+      contents,
+      config: { systemInstruction: systemPrompt },
+    });
+  } catch (err: unknown) {
+    let statusCode = Number((err as { status: unknown }).status);
+
+    if (
+      !statusCode &&
+      typeof err === "object" &&
+      err !== null &&
+      "message" in err
+    ) {
+      try {
+        const parsed = JSON.parse((err as { message: string }).message);
+        statusCode = parsed?.error?.code;
+      } catch {
+        // ignore parse failure
+      }
+    }
+
+    if (statusCode === 503 && retries > 0) {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      return startGeminiStream(contents, systemPrompt, retries - 1);
+    }
+
+    throw err;
+  }
 }

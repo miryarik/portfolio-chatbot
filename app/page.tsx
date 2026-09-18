@@ -1,83 +1,24 @@
 "use client";
 import { cn } from "../lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
 import ChatInput from "./components/chat-input";
 import ChatMessage from "./components/chat-message";
 import QuantumLoader from "./components/quantum-spinner";
-
-type Message = { role: "user" | "assistant"; content: string };
+import { useChat } from "@/hooks/use-chat";
 
 export default function ChatPage() {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [conversationId, setConversationId] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const {
+    messages,
+    input,
+    setInput,
+    isLoading,
+    error,
+    messagesEndRef,
+    sendMessage,
+    regenerate,
+  } = useChat();
 
   const isInitialState = messages.length === 0;
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  async function sendMessage() {
-    const trimmed = input.trim();
-    if (!trimmed || isLoading) return;
-
-    setError(null);
-    setInput("");
-    setMessages((prev) => [...prev, { role: "user", content: trimmed }]);
-    setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
-    setIsLoading(true);
-
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: trimmed, conversationId }),
-      });
-
-      if (res.status === 429) {
-        setError("You've hit the message limit for now — try again in a bit.");
-        setMessages((prev) => prev.slice(0, -1));
-        setIsLoading(false);
-        return;
-      }
-
-      if (!res.ok || !res.body) {
-        throw new Error("Request failed");
-      }
-
-      const newConversationId = res.headers.get("X-Conversation-Id");
-      if (newConversationId) setConversationId(newConversationId);
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-
-        setMessages((prev) => {
-          const updated = [...prev];
-          updated[updated.length - 1] = {
-            role: "assistant",
-            content: updated[updated.length - 1].content + chunk,
-          };
-          return updated;
-        });
-      }
-    } catch (err) {
-      console.error(err);
-      setError("Something went wrong — please try again.");
-      setMessages((prev) => prev.slice(0, -1));
-    } finally {
-      setIsLoading(false);
-    }
-  }
 
   return (
     <main className="mx-auto min-w-100 max-w-200 w-full h-screen p-4 flex flex-col items-center">
@@ -123,25 +64,39 @@ export default function ChatPage() {
                   "justify-start": msg.role === "assistant",
                 })}
               >
-                <div
-                  className={cn(
-                    "max-w-[80%] rounded-2xl px-4 py-2 whitespace-pre-wrap",
-                    {
-                      "bg-chat-bubble-blue rounded-br-sm font-sans":
-                        msg.role === "user",
-                      "text-background": msg.role !== "user",
-                    },
-                  )}
-                >
-                  {msg.content ? (
-                    <ChatMessage content={msg.content} />
-                  ) : (
-                    isLoading &&
-                    i === messages.length - 1 && (
-                      <QuantumLoader size={25} className="bg-background" />
-                    )
-                  )}
-                </div>
+                {msg.failed ? (
+                  <div className="flex flex-col items-start gap-2">
+                    <p className="text-sm text-red-500">
+                      That response got interrupted. Want to try again?
+                    </p>
+                    <button
+                      onClick={regenerate}
+                      className="rounded-xl border px-3 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
+                    >
+                      Regenerate response
+                    </button>
+                  </div>
+                ) : (
+                  <div
+                    className={cn(
+                      "max-w-[80%] rounded-2xl px-4 py-2 whitespace-pre-wrap",
+                      {
+                        "bg-chat-bubble-blue rounded-br-sm font-sans":
+                          msg.role === "user",
+                        "text-background": msg.role !== "user",
+                      },
+                    )}
+                  >
+                    {msg.content ? (
+                      <ChatMessage content={msg.content} />
+                    ) : (
+                      isLoading &&
+                      i === messages.length - 1 && (
+                        <QuantumLoader size={25} className="bg-background" />
+                      )
+                    )}
+                  </div>
+                )}
               </div>
             ))}
             <div ref={messagesEndRef} />

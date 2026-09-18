@@ -5,7 +5,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 export async function embedText(text: string): Promise<number[]> {
   const res = await ai.models.embedContent({
     model: "gemini-embedding-001",
-    contents: text,
+    contents: { parts: [{ text }] },
     config: { outputDimensionality: 768 },
   });
 
