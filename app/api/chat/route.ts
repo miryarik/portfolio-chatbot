@@ -15,19 +15,19 @@ export async function POST(req: NextRequest) {
     req.headers.get("x-real-ip") ||
     "127.0.0.1";
 
-  const { success } = await ratelimit.limit(ip);
+  const { message, conversationId, regenerate } = await req.json();
 
-  if (!success) return NextResponse.json("Rate Limited", { status: 429 });
+  if (!regenerate) {
+    const { success } = await ratelimit.limit(ip);
+    if (!success) return NextResponse.json("Rate Limited", { status: 429 });
+  }
 
-  const { message, conversationId } = await req.json();
-  if ((!message || typeof message != "string") && !conversationId) {
+  if ((!message || typeof message !== "string") && !conversationId) {
     return new Response(JSON.stringify({ error: "Missing message" }), {
       status: 400,
     });
   }
 
-  const context = await retrieveContext(message);
-  const systemPrompt = SYSTEM_PROMPT.replace("{{context}}", context);
   const visitorHash = createHash("sha256").update(ip).digest("hex");
 
   const conversation = conversationId
@@ -35,9 +35,12 @@ export async function POST(req: NextRequest) {
     : await prisma.conversation.create({ data: { visitorHash } });
 
   if (!conversation) {
-    return new Response(JSON.stringify({ error: "Invalid Conversation" }), {
-      status: 400,
-    });
+    return NextResponse.json(
+      { error: "Invalid Conversation" },
+      {
+        status: 400,
+      },
+    );
   }
 
   if (message) {
@@ -50,6 +53,11 @@ export async function POST(req: NextRequest) {
     where: { conversationId: conversation.id },
     orderBy: { createdAt: "asc" },
   });
+
+  const lastUserMessage =
+    [...priorMessages].reverse().find((m) => m.role === "user")?.content ?? "";
+  const context = await retrieveContext(lastUserMessage);
+  const systemPrompt = SYSTEM_PROMPT.replace("{{context}}", context);
 
   const contents = priorMessages.map((m) => ({
     role: m.role === "user" ? "user" : "model",
