@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Nunito } from "next/font/google";
 import "./globals.css";
 import NavMenu from "./components/nav-menu";
 
-const interSans = Inter({
-  variable: "--font-inter-sans",
+const nunito = Nunito({
+  variable: "--font-nunito",
   subsets: ["latin"],
 });
 
@@ -15,7 +15,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${interSans.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      className={`${nunito.variable} font-nunito h-full antialiased`}
+    >
       <body className="min-h-full flex flex-col">
         <NavMenu />
         {children}
