@@ -6,6 +6,18 @@ export function cn(...inputs: ClassValue[]) {
 }
 type Message = { role: "user" | "assistant"; content: string };
 
+export const smallSampleChat: Message[] = [
+  {
+    role: "user",
+    content: "Hey, who are you?",
+  },
+  {
+    role: "assistant",
+    content:
+      "Hi! I am Yarik's AI portfolio assistant. You can ask me about Yarik's background, projects, technical skills, work experience, or how to contact him!",
+  },
+];
+
 export const sampleChat: Message[] = [
   {
     role: "user",

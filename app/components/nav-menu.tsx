@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ReactNode, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface Path {
   path: string;
@@ -22,7 +23,7 @@ export default function NavMenu() {
   const pathname = usePathname();
 
   return (
-    <nav className="absolute flex flex-col gap-2 ml-4 mt-4 p-2 bg-nav-bg-color rounded-full">
+    <nav className="absolute flex flex-col gap-2 ml-4 mt-4 p-2 bg-nav-bg-color shadow-nav-shadow rounded-full">
       {PATHS.map((p) => (
         <NavItem key={p.label} path={p} active={pathname === p.path} />
       ))}
@@ -42,14 +43,16 @@ function NavItem({ path, active = false }: { path: Path; active: boolean }) {
       {active && (
         <motion.div
           layoutId="active-nav-bg"
-          className="absolute inset-0 bg-blue-500 rounded-full"
+          className={"absolute inset-0 bg-blue-500 rounded-full"}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
         />
       )}
 
       <Link
         href={path.path}
-        className="relative z-10 mx-auto w-full flex gap-2 items-center"
+        className={cn("relative z-10 mx-auto w-full flex gap-2 items-center", {
+          "text-white": active,
+        })}
       >
         <AnimatePresence>
           {hovered && (
@@ -58,7 +61,9 @@ function NavItem({ path, active = false }: { path: Path; active: boolean }) {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -6 }}
               transition={{ duration: 0.15 }}
-              className="absolute left-12 bg-nav-bg-color px-2 rounded-lg whitespace-nowrap"
+              className={cn(
+                "absolute left-12 text-foreground bg-nav-bg-color px-2 rounded-lg whitespace-nowrap",
+              )}
             >
               {path.label}
             </motion.div>

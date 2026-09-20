@@ -54,51 +54,53 @@ export default function ChatPage() {
             key="chat-list"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex-1 w-full min-h-0 overflow-y-auto scrollbar-none pr-2 my-4"
+            className="flex-1 flex flex-col w-full min-h-0 overflow-y-auto scrollbar-none pr-2 my-4"
           >
-            {messages.map((msg, i) => (
-              <div
-                key={i}
-                className={cn("flex my-4", {
-                  "justify-end": msg.role === "user",
-                  "justify-start": msg.role === "assistant",
-                })}
-              >
-                {msg.failed ? (
-                  <div className="flex flex-col items-start gap-2">
-                    <p className="text-sm text-red-500">
-                      That response got interrupted. Want to try again?
-                    </p>
-                    <button
-                      onClick={regenerate}
-                      className="rounded-xl border px-3 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
+            <div className="mt-auto flex flex-col">
+              {messages.map((msg, i) => (
+                <div
+                  key={i}
+                  className={cn("flex my-4", {
+                    "justify-end": msg.role === "user",
+                    "justify-start": msg.role === "assistant",
+                  })}
+                >
+                  {msg.failed ? (
+                    <div className="flex flex-col items-start gap-2">
+                      <p className="text-sm text-red-500">
+                        That response got interrupted. Want to try again?
+                      </p>
+                      <button
+                        onClick={regenerate}
+                        className="rounded-xl border px-3 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
+                      >
+                        Regenerate response
+                      </button>
+                    </div>
+                  ) : (
+                    <div
+                      className={cn(
+                        "max-w-[80%] rounded-2xl px-4 py-2 whitespace-pre-wrap",
+                        {
+                          "bg-chat-bubble-blue rounded-br-sm font-sans":
+                            msg.role === "user",
+                          "text-background": msg.role !== "user",
+                        },
+                      )}
                     >
-                      Regenerate response
-                    </button>
-                  </div>
-                ) : (
-                  <div
-                    className={cn(
-                      "max-w-[80%] rounded-2xl px-4 py-2 whitespace-pre-wrap",
-                      {
-                        "bg-chat-bubble-blue rounded-br-sm font-sans":
-                          msg.role === "user",
-                        "text-background": msg.role !== "user",
-                      },
-                    )}
-                  >
-                    {msg.content ? (
-                      <ChatMessage content={msg.content} />
-                    ) : (
-                      isLoading &&
-                      i === messages.length - 1 && (
-                        <QuantumLoader size={25} className="bg-background" />
-                      )
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
+                      {msg.content ? (
+                        <ChatMessage content={msg.content} />
+                      ) : (
+                        isLoading &&
+                        i === messages.length - 1 && (
+                          <QuantumLoader size={25} className="bg-background" />
+                        )
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
             <div ref={messagesEndRef} />
           </motion.div>
         )}
