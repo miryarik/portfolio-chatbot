@@ -13,8 +13,8 @@ interface Path {
 }
 
 const PATHS: Path[] = [
-  { path: "/", icon: <MessageCircle size={20} />, label: "Chat" },
-  { path: "/about", icon: <User2 size={20} />, label: "About" },
+  { path: "/", icon: <User2 size={20} />, label: "About" },
+  { path: "/chat", icon: <MessageCircle size={20} />, label: "Chat" },
   { path: "/projects", icon: <CodeSquare size={20} />, label: "Projects" },
   { path: "/contact", icon: <Mail size={20} />, label: "Contact" },
 ];
@@ -23,7 +23,7 @@ export default function NavMenu() {
   const pathname = usePathname();
 
   return (
-    <nav className="absolute flex flex-col gap-2 ml-4 mt-4 p-2 bg-nav-bg-color shadow-nav-shadow rounded-full">
+    <nav className="absolute top-0 flex flex-col gap-2 ml-4 mt-4 p-2 bg-nav-bg-color shadow-nav-shadow rounded-full">
       {PATHS.map((p) => (
         <NavItem key={p.label} path={p} active={pathname === p.path} />
       ))}

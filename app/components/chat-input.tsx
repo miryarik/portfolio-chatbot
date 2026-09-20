@@ -19,7 +19,7 @@ export default function ChatInput({
       {error && <p className="text-sm text-red-500 px-2">{error}</p>}
       <div
         className={cn(
-          "flex items-center gap-2 w-full shadow-input-shadow bg-chat-input-bg rounded-full p-2",
+          "flex items-center gap-2 w-full  shadow-input-shadow bg-chat-input-bg rounded-full p-2",
         )}
       >
         <textarea

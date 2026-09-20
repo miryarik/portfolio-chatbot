@@ -8,6 +8,8 @@
   --chat-input-bg: #ffffff;
   --submit-button-bg: #4285f4;
   --nav-bg-color: #ffffff;
+  --solid-bg-color: #ffffff;
+  --solid-shadow: 0px 7px 29px 0px #9aa0a6;
   --nav-shadow: 0 4px 12px 0 #9aa0a6;
 }
 
@@ -20,6 +22,8 @@
     --chat-input-bg: #252525;
     --submit-button-bg: #4285f4;
     --nav-bg-color: #292929;
+    --solid-bg-color: #151515;
+    --solid-shadow: none;
     --nav-shadow: none;
   }
 }
@@ -32,6 +36,7 @@
   --chat-input-bg: #252525;
   --submit-button-bg: #4285f4;
   --nav-bg-color: #292929;
+  --solid-bg-color: #292929;
 }
 
 @theme {
@@ -40,10 +45,12 @@
   --color-chat-bubble-blue: var(--chat-bubble-blue);
   --shadow-input-shadow: var(--input-shadow);
   --shadow-nav-shadow: var(--nav-shadow);
+  --shadow-solid-shadow: var(--solid-shadow);
 
   --color-chat-input-bg: var(--chat-input-bg);
   --color-submit-button-bg: var(--submit-button-bg);
   --color-nav-bg-color: var(--nav-bg-color);
+  --color-solid-bg-color: var(--solid-bg-color);
   --font-nunito: var(--font-nunito);
 }
 
