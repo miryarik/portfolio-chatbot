@@ -84,7 +84,7 @@ export default function ChatPage() {
                         {
                           "bg-chat-bubble-blue rounded-br-sm font-sans":
                             msg.role === "user",
-                          "text-background": msg.role !== "user",
+                          "text-background max-w-full": msg.role !== "user",
                         },
                       )}
                     >
