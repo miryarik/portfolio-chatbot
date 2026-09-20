@@ -19,6 +19,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${nunito.variable} font-nunito h-full antialiased`}
     >
+      <head>
+        <link
+          rel="stylesheet"
+          type="text/css"
+          href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css"
+        />
+      </head>
+
       <body className="min-h-full flex flex-col">
         <NavMenu />
         {children}
