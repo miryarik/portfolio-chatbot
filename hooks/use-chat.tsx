@@ -1,10 +1,11 @@
 "use client";
 
 import { Message, RateLimitError, StreamFailedError } from "@/lib/types";
+import { sampleChat } from "@/lib/utils";
 import { useEffect, useRef, useState } from "react";
 
 export function useChat() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([...sampleChat]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);

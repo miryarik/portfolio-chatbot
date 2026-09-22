@@ -21,7 +21,7 @@ export default function ChatPage() {
   const isInitialState = messages.length === 0;
 
   return (
-    <main className="mx-auto min-w-100 max-w-200 w-full h-screen p-4 flex flex-col items-center">
+    <main className="mx-auto max-w-180 w-full h-screen p-4 flex flex-col items-center">
       <AnimatePresence mode="wait">
         {isInitialState ? (
           <motion.div
@@ -32,7 +32,7 @@ export default function ChatPage() {
             transition={{ duration: 0.3 }}
             className="flex-1 flex flex-col items-center justify-center w-full gap-6"
           >
-            <p className="text-3xl font-semibold sans text-foreground">
+            <p className="text-2xl sm:text-3xl font-semibold sans text-foreground">
               Hey! I am Yarik&apos;s Chatbot!
             </p>
 
@@ -63,6 +63,7 @@ export default function ChatPage() {
                   className={cn("flex my-4", {
                     "justify-end": msg.role === "user",
                     "justify-start": msg.role === "assistant",
+                    hidden: msg.content.length === 0 && !isLoading,
                   })}
                 >
                   {msg.failed ? (
@@ -80,9 +81,9 @@ export default function ChatPage() {
                   ) : (
                     <div
                       className={cn(
-                        "max-w-[80%] rounded-2xl px-4 py-2 whitespace-pre-wrap",
+                        "max-w-[80%] rounded-3xl text-md sm:text-lg px-4 py-2 whitespace-pre-wrap",
                         {
-                          "bg-chat-bubble-blue rounded-br-sm font-sans":
+                          "bg-chat-bubble-blue rounded-br-sm":
                             msg.role === "user",
                           "text-background max-w-full": msg.role !== "user",
                         },
